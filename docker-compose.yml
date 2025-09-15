@@ -7,12 +7,3 @@ services:
       - .env
     environment:
       - PORT=8080
-    depends_on:
-      - tests
-
-  tests:
-    build:
-      context: .
-      dockerfile: Dockerfile.test
-    env_file:
-      - .env
