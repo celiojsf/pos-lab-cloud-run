@@ -1,6 +1,9 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      platforms:
+        - ${PLATFORM:-linux/amd64}  # Plataforma padrão é amd64, mas pode ser alterada via variável de ambiente
     ports:
       - "8080:8080"
     env_file:

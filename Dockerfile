@@ -1,5 +1,11 @@
 # Stage 1: Build
-FROM golang:1.21-alpine AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.21-alpine AS builder
+
+# Build arguments for architecture
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /app
 
@@ -8,10 +14,10 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /api ./cmd/api
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} go build -o /api ./cmd/api
 
 # Stage 2: Run
-FROM alpine:3.18
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.18
 
 WORKDIR /
 

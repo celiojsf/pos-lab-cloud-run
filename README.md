@@ -2,6 +2,10 @@
 
 Esta API fornece informações de temperatura baseadas em CEPs brasileiros. O serviço converte o CEP em nome da cidade e retorna a temperatura atual em Celsius, Fahrenheit e Kelvin.
 
+## Acesso no Cloud Run
+
+https://pos-lab-cloud-run-943967847645.us-central1.run.app/weather/{cep}
+
 ## Pré-requisitos
 
 - Docker e Docker Compose
@@ -111,26 +115,3 @@ docker run --env-file .env weather-api-tests
 - Docker & Docker Compose
 - ViaCEP API
 - WeatherAPI
-
-## Deploy no Google Cloud Run
-
-Instruções para deploy no Google Cloud Run:
-
-1. Build da imagem:
-```bash
-docker build -t gcr.io/[PROJECT_ID]/weather-api .
-```
-
-2. Push para o Container Registry:
-```bash
-docker push gcr.io/[PROJECT_ID]/weather-api
-```
-
-3. Deploy no Cloud Run:
-```bash
-gcloud run deploy weather-api \
-  --image gcr.io/[PROJECT_ID]/weather-api \
-  --platform managed \
-  --region [REGION] \
-  --set-env-vars WEATHER_API_KEY=[YOUR_API_KEY]
-```

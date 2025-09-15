@@ -1,4 +1,10 @@
-FROM golang:1.21-alpine
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.21-alpine
+
+# Build arguments for architecture
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /app
 
