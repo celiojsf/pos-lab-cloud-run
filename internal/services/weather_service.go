@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 )
 
 type WeatherService struct {
@@ -34,16 +36,36 @@ func NewWeatherService() *WeatherService {
 }
 
 func (s *WeatherService) GetTemperature(city string) (*Temperature, error) {
-	url := fmt.Sprintf("%s/current.json?key=%s&q=%s", s.apiBaseURL, s.apiKey, city)
+	if s.apiKey == "" {
+		return nil, fmt.Errorf("WEATHER_API_KEY not set")
+	}
 
-	resp, err := s.client.Get(url)
+	// Normalize city name - replace special characters and handle special cases
+	city = strings.ReplaceAll(city, "ã", "a")
+	city = strings.ReplaceAll(city, "á", "a")
+	city = strings.ReplaceAll(city, "â", "a")
+	city = strings.ReplaceAll(city, "é", "e")
+	city = strings.ReplaceAll(city, "ê", "e")
+	city = strings.ReplaceAll(city, "í", "i")
+	city = strings.ReplaceAll(city, "ó", "o")
+	city = strings.ReplaceAll(city, "ô", "o")
+	city = strings.ReplaceAll(city, "ú", "u")
+
+	// URL encode the city name
+	encodedCity := url.QueryEscape(city)
+	requestURL := fmt.Sprintf("%s/current.json?key=%s&q=%s", s.apiBaseURL, s.apiKey, encodedCity)
+	fmt.Printf("Requesting weather data for city: %s (encoded: %s)\n", city, encodedCity)
+
+	resp, err := s.client.Get(requestURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error making request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("weather API error: %d", resp.StatusCode)
+		var errResp map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&errResp)
+		return nil, fmt.Errorf("weather API error: status=%d, response=%v", resp.StatusCode, errResp)
 	}
 
 	var weatherData WeatherResponse

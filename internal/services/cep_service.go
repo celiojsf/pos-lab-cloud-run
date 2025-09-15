@@ -37,18 +37,19 @@ func (s *CEPService) GetCityFromCEP(cep string) (string, error) {
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
 	resp, err := s.client.Get(url)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("can not find zipcode")
 	}
 	defer resp.Body.Close()
 
 	var cepData ViaCEPResponse
 	if err := json.NewDecoder(resp.Body).Decode(&cepData); err != nil {
-		return "", err
-	}
-
-	if cepData.Erro {
 		return "", fmt.Errorf("can not find zipcode")
 	}
 
-	return fmt.Sprintf("%s, %s", cepData.Localidade, cepData.UF), nil
+	// Check if CEP exists and has valid data
+	if cepData.Erro || cepData.Localidade == "" {
+		return "", fmt.Errorf("can not find zipcode")
+	}
+
+	return cepData.Localidade, nil
 }

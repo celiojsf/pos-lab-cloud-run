@@ -39,7 +39,7 @@ func (h *WeatherHandler) GetWeatherByCEP(c *gin.Context) {
 
 	temp, err := h.weatherService.GetTemperature(city)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "error fetching weather data"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error fetching weather data", "error": err.Error()})
 		return
 	}
 
